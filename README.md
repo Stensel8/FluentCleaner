@@ -1,4 +1,9 @@
 # FluentCleaner
+### modern, transparent, no spyware, no scareware, no dark patterns, no upsell garbage, no fake registry magic
+
+
+<img width="1536" height="1024" alt="FluentCleaner" src="https://github.com/user-attachments/assets/81ae4e10-9dde-4cff-9cf0-f8aac851f332" />
+
 
 _i built my own take on a cleaner, inspired by the old CCleaner from back in the 2006 days, just adapted to how things should work today. modern (built with WinUI 3), minimal and focused on actually cleaning what matters (without all the usual nonsense)_
  
