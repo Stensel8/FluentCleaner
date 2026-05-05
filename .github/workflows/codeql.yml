@@ -34,7 +34,9 @@ jobs:
           build-mode: manual
 
       - name: Build
-        run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release -p:Platform=x64
+        # -p:ApplicationIcon= clears the property because Assets/AppIcon.ico is not committed to the repo.
+        # Once the icon asset is committed, this override can be removed.
+        run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release -p:Platform=x64 -p:ApplicationIcon=
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@e46ed2cbd01164d986452f91f178727624ae40d7  # v4.35.3
