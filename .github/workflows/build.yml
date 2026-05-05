@@ -27,9 +27,7 @@ jobs:
         run: dotnet restore FluentCleaner/FluentCleaner.csproj
 
       - name: Build
-        # -p:ApplicationIcon= clears the property because Assets/AppIcon.ico is not committed to the repo.
-        # Once the icon asset is committed, this override can be removed.
-        run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release --no-restore -p:Platform=x64 -p:ApplicationIcon=
+        run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release --no-restore -p:Platform=x64
 
       - name: Check formatting
         run: dotnet format FluentCleaner/FluentCleaner.csproj --verify-no-changes --no-restore
