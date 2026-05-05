@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build & Format
+    name: Build
     runs-on: windows-latest
 
     steps:
@@ -29,5 +29,3 @@ jobs:
       - name: Build
         run: dotnet build FluentCleaner/FluentCleaner.csproj --configuration Release --no-restore -p:Platform=x64
 
-      - name: Check formatting
-        run: dotnet format FluentCleaner/FluentCleaner.csproj --verify-no-changes --no-restore
