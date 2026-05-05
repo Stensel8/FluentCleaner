@@ -23,14 +23,14 @@ public partial class CleanerPageViewModel : ObservableObject
 
     // --- Observable state ---------------------------------------------------
 
-    [ObservableProperty] private ObservableCollection<CleanerCategoryViewModel> _categories = [];    // left panel: category tree
-    [ObservableProperty] private ObservableCollection<ScanResultLine>           _resultLines = [];    // right panel: per-app results after Analyze
-    [ObservableProperty] private ObservableCollection<DetailLine>               _detailLines = [];    // right panel: file/registry paths when a result row is open
-    [ObservableProperty] private ScanResultLine? _selectedResultLine;                                 // which result row is currently open in detail view
-    [ObservableProperty] private string  _searchText    = "";                                         // search box
-    [ObservableProperty] private string  _statusText    = "Loading Winapp2.ini...";                   // status bar at the bottom
-    [ObservableProperty] private string  _totalSize     = "";                                         // sum of all scan results
-    [ObservableProperty] private bool    _isBusy;                                                     // locked while a scan or clean is running
+    [ObservableProperty] public partial ObservableCollection<CleanerCategoryViewModel> Categories         { get; set; } = [];    // left panel: category tree
+    [ObservableProperty] public partial ObservableCollection<ScanResultLine>           ResultLines        { get; set; } = [];    // right panel: per-app results after Analyze
+    [ObservableProperty] public partial ObservableCollection<DetailLine>               DetailLines        { get; set; } = [];    // right panel: file/registry paths when a result row is open
+    [ObservableProperty] public partial ScanResultLine?                                SelectedResultLine { get; set; }          // which result row is currently open in detail view
+    [ObservableProperty] public partial string  SearchText { get; set; } = "";                     // search box
+    [ObservableProperty] public partial string  StatusText { get; set; } = "Loading Winapp2.ini..."; // status bar at the bottom
+    [ObservableProperty] public partial string  TotalSize  { get; set; } = "";                     // sum of all scan results
+    [ObservableProperty] public partial bool    IsBusy     { get; set; }                           // locked while a scan or clean is running
 
     // Derived — no own state, everything computed from the observable properties above
 

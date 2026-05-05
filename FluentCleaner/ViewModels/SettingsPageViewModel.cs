@@ -12,17 +12,17 @@ public partial class SettingsPageViewModel : ObservableObject
 
     private static string Winapp3LocalPath => Path.Combine(AppContext.BaseDirectory, "Winapp3.ini");
 
-    [ObservableProperty] private int    _databaseSourceIndex;  // 0=default 1=custom 2=winapp3
-    [ObservableProperty] private bool   _isDefaultSource = true;
-    [ObservableProperty] private bool   _isCustomSource;
-    [ObservableProperty] private bool   _isWinapp3Source;
-    [ObservableProperty] private string _activePath = "";
-    [ObservableProperty] private string _customPath = "";
-    [ObservableProperty] private string _statusText = "";
-    [ObservableProperty] private bool   _isBusy;
-    [ObservableProperty] private string _fileInfo   = "";
-    [ObservableProperty] private int    _themeIndex;
-    [ObservableProperty] private bool   _restartRequired;
+    [ObservableProperty] public partial int    DatabaseSourceIndex { get; set; }         // 0=default 1=custom 2=winapp3
+    [ObservableProperty] public partial bool   IsDefaultSource     { get; set; } = true;
+    [ObservableProperty] public partial bool   IsCustomSource      { get; set; }
+    [ObservableProperty] public partial bool   IsWinapp3Source     { get; set; }
+    [ObservableProperty] public partial string ActivePath          { get; set; } = "";
+    [ObservableProperty] public partial string CustomPath          { get; set; } = "";
+    [ObservableProperty] public partial string StatusText          { get; set; } = "";
+    [ObservableProperty] public partial bool   IsBusy              { get; set; }
+    [ObservableProperty] public partial string FileInfo            { get; set; } = "";
+    [ObservableProperty] public partial int    ThemeIndex          { get; set; }
+    [ObservableProperty] public partial bool   RestartRequired     { get; set; }
 
     private bool _refreshing;
 
