@@ -45,6 +45,7 @@
   <data name="MenuCleanEntry.Text"><value>Clean</value></data>
   <data name="MenuExplainEntry.Text"><value>Explain with AI</value></data>
   <data name="LblAIDesc.Text"><value>Right-click any entry on the Cleaner page → Explain with AI. Powered by Groq (llama-3.3-70b) — free, no billing. Nothing is sent without your explicit action. Requires your own API key.</value></data>
+  <data name="LblAICustomHint.Text"><value>💡 Once your key is saved, the Custom Cleaners page also unlocks AI — describe what to clean and it generates a ready-to-use Winapp2 entry or PowerShell script for you.</value></data>
   <data name="ResultsHeader.Text"><value>Results</value></data>
   <data name="BtnBackToResults.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip"><value>Back to results</value></data>
   <data name="BtnCleanDetail.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip"><value>Delete these files now</value></data>
@@ -86,6 +87,10 @@
   <data name="DlgWarningMessage"><value>The selected Winapp2 entries include the following warnings:</value></data>
   <data name="DlgExplainThinking"><value>Thinking…</value></data>
   <data name="DlgExplainClose"><value>Close</value></data>
+  <data name="DlgRestartTitle"><value>Restart required</value></data>
+  <data name="DlgRestartMessage"><value>FluentCleaner needs to restart to apply the new language.</value></data>
+  <data name="DlgRestartNow"><value>Restart now</value></data>
+  <data name="DlgRestartLater"><value>Later</value></data>
 
   <!-- ============================================================
        STATUS MESSAGES — CleanerPageViewModel (format strings)

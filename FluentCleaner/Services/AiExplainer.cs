@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -23,7 +24,7 @@ public static class AiExplainer
         var apiKey = AppSettings.Instance.GroqApiKey
                      ?? Environment.GetEnvironmentVariable("GROQ_API_KEY");
         if (string.IsNullOrWhiteSpace(apiKey))
-            return "No API key configured. Go to Settings → AI explanations to add your Groq API key (free at console.groq.com).";
+            return ResourceService.Get("AI_NoKey");
 
         var prompt = BuildPrompt(entry);
 
@@ -38,7 +39,7 @@ public static class AiExplainer
                     max_tokens = 300,
                     messages   = new[]
                     {
-                        new { role = "system", content = "You are a Windows PC expert. Explain Winapp2 cleaner entries concisely and accurately based on the file paths and registry keys provided." },
+                        new { role = "system", content = "You are a Windows PC expert. Explain Winapp2 cleaner entries concisely and accurately based on the file paths and registry keys provided." + LangInstruction() },
                         new { role = "user",   content = prompt }
                     }
                 }),
@@ -53,21 +54,21 @@ public static class AiExplainer
             if (root.TryGetProperty("error", out var err))
             {
                 var msg = err.TryGetProperty("message", out var m) ? m.GetString() : "Unknown error";
-                return $"Groq API error: {msg}";
+                return ResourceService.Fmt("AI_ApiError", msg);
             }
 
             var text = root
                 .GetProperty("choices")[0]
                 .GetProperty("message")
                 .GetProperty("content")
-                .GetString() ?? "No response received.";
+                .GetString() ?? ResourceService.Get("AI_NoResponse");
 
             _cache[entry.Name] = text;
             return text;
         }
         catch (Exception ex)
         {
-            return $"Could not reach Groq API: {ex.Message}";
+            return ResourceService.Fmt("AI_NetworkError", ex.Message);
         }
     }
 
@@ -122,7 +123,7 @@ public static class AiExplainer
         var apiKey = AppSettings.Instance.GroqApiKey
                      ?? Environment.GetEnvironmentVariable("GROQ_API_KEY");
         if (string.IsNullOrWhiteSpace(apiKey))
-            return $"{errorPrefix}No API key configured — go to Settings → AI explanations.";
+            return $"{errorPrefix}{ResourceService.Get("AI_NoKeyShort")}";
 
         try
         {
@@ -199,6 +200,25 @@ public static class AiExplainer
             return "✓ " + text;
         }
         catch (Exception ex) { return "✗ " + ex.Message; }
+    }
+
+    // Returns " Please respond in German." etc. so empty only for English.
+    // Falls back to the Windows UI culture when we pick System default
+    private static string LangInstruction()
+    {
+        var lang = AppSettings.Instance.Language;
+        if (string.IsNullOrWhiteSpace(lang))
+            lang = CultureInfo.CurrentUICulture.Name;
+
+        if (lang.StartsWith("en", StringComparison.OrdinalIgnoreCase))
+            return string.Empty;
+
+        try
+        {
+            var name = CultureInfo.GetCultureInfo(lang).Parent.EnglishName;
+            return $" Please respond in {name}.";
+        }
+        catch { return string.Empty; }
     }
 
     //build a prompt with real paths so the model knows exactly what gets cleaned

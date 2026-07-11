@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentCleaner.Services;
 using FluentCleaner.ViewModels;
 using Microsoft.UI.Xaml;
@@ -11,6 +12,7 @@ public sealed partial class SettingsPage : Page, IPageActions
 {
     private static readonly HttpClient _http = new();
     private string? _updateVersion; // null = up to date, string = new version available
+    private bool _pageReady; // true when the page has finished loading and is ready to handle events
 
     public SettingsPageViewModel ViewModel { get; } = new();
     public string AppVersion => AppInfo.DisplayVersion;
@@ -21,10 +23,41 @@ public sealed partial class SettingsPage : Page, IPageActions
         InitializeComponent();
         Loaded += async (_, _) =>
         {
+            _pageReady = false;
             ViewModel.Refresh();                                    //sync database toggles, paths, theme
             await CheckForUpdateAsync(silent: true);               //silent update check; banner only if newer version found
             ApiKeyBox.Password = AppSettings.Instance.GroqApiKey ?? ""; //pre-fill saved Groq key (masked)
+
+            // Translator credit: hidden when the language file leaves it empty.
+            var credit = ResourceService.Get("LblTranslatorCredit");
+            var hasCredit = !string.IsNullOrWhiteSpace(credit) && credit != "LblTranslatorCredit";
+            lblTranslatorCredit.Text       = hasCredit ? credit : "";
+            lblTranslatorCredit.Visibility = hasCredit ? Visibility.Visible : Visibility.Collapsed;
+
+            _pageReady = true;
         };
+    }
+
+    private async void LangCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_pageReady) return;
+
+        var result = await new ContentDialog
+        {
+            XamlRoot          = XamlRoot,
+            RequestedTheme    = ActualTheme,
+            Title             = ResourceService.Get("DlgRestartTitle"),
+            Content           = ResourceService.Get("DlgRestartMessage"),
+            PrimaryButtonText = ResourceService.Get("DlgRestartNow"),
+            CloseButtonText   = ResourceService.Get("DlgRestartLater"),
+            DefaultButton     = ContentDialogButton.Primary
+        }.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            Process.Start(Environment.ProcessPath!);
+            Application.Current.Exit();
+        }
     }
 
     // --- Update check --------------------------------------------
@@ -45,10 +78,10 @@ public sealed partial class SettingsPage : Page, IPageActions
         if (_updateVersion is not null)
         {
             UpdateBar.Severity = InfoBarSeverity.Error;
-            UpdateBar.Title   = $"Update available — {_updateVersion}";
-            UpdateBar.Message = "A new version of FluentCleaner is ready to download.";
+            UpdateBar.Title   = ResourceService.Fmt("St_UpdateAvailable", _updateVersion);
+            UpdateBar.Message = ResourceService.Get("St_UpdateMessage");
 
-            var btn = new Button { Content = "Download", Style = (Style)Application.Current.Resources["AccentButtonStyle"] };
+            var btn = new Button { Content = ResourceService.Get("St_Download"), Style = (Style)Application.Current.Resources["AccentButtonStyle"] };
             btn.Click += async (_, _) => await AppLinks.OpenAsync(AppLinks.Releases);
             UpdateBar.ActionButton = btn;
             UpdateBar.IsOpen = true;
@@ -56,8 +89,8 @@ public sealed partial class SettingsPage : Page, IPageActions
         else if (!silent)
         {
             UpdateBar.Severity     = InfoBarSeverity.Success;
-            UpdateBar.Title        = "You're up to date";
-            UpdateBar.Message      = $"Version {AppInfo.DisplayVersion} is the latest.";
+            UpdateBar.Title        = ResourceService.Get("St_UpToDate");
+            UpdateBar.Message      = ResourceService.Fmt("St_UpToDateMessage", AppInfo.DisplayVersion);
             UpdateBar.ActionButton = null;
             UpdateBar.IsOpen       = true;
         }
@@ -69,13 +102,13 @@ public sealed partial class SettingsPage : Page, IPageActions
     {
         if (_updateVersion is not null)
         {
-            var updateItem = new MenuFlyoutItem { Text = $"⬆  Update available — {_updateVersion}" };
+            var updateItem = new MenuFlyoutItem { Text = ResourceService.Fmt("St_MenuUpdate", _updateVersion) };
             updateItem.Click += async (_, _) => await AppLinks.OpenAsync(AppLinks.Releases);
             flyout.Items.Add(updateItem);
         }
         else
         {
-            var checkItem = new MenuFlyoutItem { Text = "Check for updates" };
+            var checkItem = new MenuFlyoutItem { Text = ResourceService.Get("St_MenuCheckUpdates") };
             checkItem.Click += async (_, _) => await CheckForUpdateAsync();
             flyout.Items.Add(checkItem);
         }
@@ -92,7 +125,7 @@ public sealed partial class SettingsPage : Page, IPageActions
     private async void Link_Faq(object sender, RoutedEventArgs e)        => await AppLinks.OpenAsync(AppLinks.Faq);
     private async void Link_IconCredit(object sender, RoutedEventArgs e) => await AppLinks.OpenAsync(AppLinks.IconCredit);
 
-    // I Explanations API key save button;saves the trimmed key or null if the box is empty/whitespace
+    // saves trimmed key; null when the box is empty
     private void ApiKeySave_Click(object sender, RoutedEventArgs e)
     {
         AppSettings.Instance.GroqApiKey =
@@ -104,10 +137,10 @@ public sealed partial class SettingsPage : Page, IPageActions
     private async void ApiKeyTest_Click(object sender, RoutedEventArgs e)
     {
         var key = ApiKeyBox.Password.Trim();
-        if (string.IsNullOrWhiteSpace(key)) { lblApiTestResult.Text = "⚠ Enter an API key first."; lblApiTestResult.Visibility = Visibility.Visible; return; }
+        if (string.IsNullOrWhiteSpace(key)) { lblApiTestResult.Text = ResourceService.Get("St_ApiKeyMissing"); lblApiTestResult.Visibility = Visibility.Visible; return; }
 
         btnTestKey.IsEnabled        = false;
-        lblApiTestResult.Text       = "Testing…";
+        lblApiTestResult.Text       = ResourceService.Get("St_ApiKeyTesting");
         lblApiTestResult.Visibility = Visibility.Visible;
         lblApiTestResult.Text       = await AiExplainer.TestKeyAsync(key);
         btnTestKey.IsEnabled        = true;
@@ -124,5 +157,46 @@ public sealed partial class SettingsPage : Page, IPageActions
         var file = await picker.PickSingleFileAsync();
         if (file is not null)
             ViewModel.CustomPath = file.Path;
+    }
+
+    // --- Export / Import settings -----------------------------------------
+
+    private async void ExportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new FileSavePicker { SuggestedStartLocation = PickerLocationId.Desktop, SuggestedFileName = "settings" };
+        picker.FileTypeChoices.Add("JSON", [".json"]);
+
+        var hwnd = WindowNative.GetWindowHandle((Application.Current as App)?.MainWindow);
+        InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSaveFileAsync();
+        if (file is null) return;
+
+        try
+        {
+            AppSettings.ExportTo(file.Path);
+            ViewModel.StatusText = ResourceService.Fmt("St_ExportSuccess", file.Name);
+        }
+        catch (Exception ex) { ViewModel.StatusText = ResourceService.Fmt("St_ExportFailed", ex.Message); }
+    }
+
+    private async void ImportSettings_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new FileOpenPicker { SuggestedStartLocation = PickerLocationId.Desktop };
+        picker.FileTypeFilter.Add(".json");
+
+        var hwnd = WindowNative.GetWindowHandle((Application.Current as App)?.MainWindow);
+        InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file is null) return;
+
+        try
+        {
+            AppSettings.ImportFrom(file.Path);
+            ViewModel.Refresh();
+            ViewModel.StatusText = ResourceService.Fmt("St_ImportSuccess", file.Name);
+        }
+        catch (Exception ex) { ViewModel.StatusText = ResourceService.Fmt("St_ImportFailed", ex.Message); }
     }
 }

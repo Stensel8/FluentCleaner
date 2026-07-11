@@ -23,24 +23,21 @@
 
             <!-- Donation banner -->
             <InfoBar x:Name="DonationBanner"
+                     x:Uid="DonationBar"
                      IsOpen="True"
                      IsClosable="True"
-                     Severity="Warning"
-                     Title="FluentCleaner is going open source."
-                     Message="Put a lot of work into this — if it helps you and you feel like saying thanks, a donation would really mean a lot. ♥">
+                     Severity="Warning">
                 <InfoBar.Content>
                     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-                        <DropDownButton Style="{StaticResource AccentButtonStyle}"
-                                        Content="Support the project">
+                        <DropDownButton x:Uid="BtnDonate" Style="{StaticResource AccentButtonStyle}">
                             <DropDownButton.Flyout>
                                 <MenuFlyout Placement="Bottom">
-                                    <MenuFlyoutItem Text="Donate via PayPal" Click="Link_Donate" />
-                                    <MenuFlyoutItem Text="Donate via Ko-fi"  Click="Link_KoFi" />
+                                    <MenuFlyoutItem x:Uid="MenuDonatePayPal" Click="Link_Donate" />
+                                    <MenuFlyoutItem x:Uid="MenuDonateKoFi"  Click="Link_KoFi" />
                                 </MenuFlyout>
                             </DropDownButton.Flyout>
                         </DropDownButton>
-                        <Button Content="Maybe later"
-                                Click="DonationBanner_Dismiss" />
+                        <Button x:Uid="BtnDonateLater" Click="DonationBanner_Dismiss" />
                     </StackPanel>
                 </InfoBar.Content>
             </InfoBar>
@@ -49,11 +46,11 @@
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="32,26,32,32" Spacing="22" HorizontalAlignment="Stretch">
 
-            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock x:Uid="SettingsTitle" Style="{StaticResource TitleTextBlockStyle}" />
 
             <!-- Appearance -->
             <StackPanel Spacing="10">
-                <TextBlock Text="Appearance" FontSize="13" FontWeight="SemiBold" />
+                <TextBlock x:Uid="SectionAppearance" FontSize="13" FontWeight="SemiBold" />
 
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -64,28 +61,52 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                        <TextBlock Text="App theme" FontWeight="SemiBold" />
-                        <TextBlock Text="Choose how FluentCleaner looks on your device."
+                        <TextBlock x:Uid="LblTheme" FontWeight="SemiBold" />
+                        <TextBlock x:Uid="LblThemeDesc"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                    Style="{StaticResource CaptionTextBlockStyle}" />
                     </StackPanel>
                     <ComboBox Grid.Column="1"
                               SelectedIndex="{x:Bind ViewModel.ThemeIndex, Mode=TwoWay}"
                               MinWidth="140" VerticalAlignment="Center">
-                        <ComboBoxItem Content="System default" />
-                        <ComboBoxItem Content="Light" />
-                        <ComboBoxItem Content="Dark" />
+                        <ComboBoxItem x:Uid="ThemeSystem" />
+                        <ComboBoxItem x:Uid="ThemeLight" />
+                        <ComboBoxItem x:Uid="ThemeDark" />
                     </ComboBox>
                 </Grid>
             </Border>
+
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="18,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                        <TextBlock x:Uid="LblLanguage" FontWeight="SemiBold" />
+                        <TextBlock x:Uid="LblLanguageDesc"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   Style="{StaticResource CaptionTextBlockStyle}" />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{x:Bind ViewModel.Languages}"
+                              SelectedItem="{x:Bind ViewModel.SelectedLanguage, Mode=TwoWay}"
+                              SelectionChanged="LangCombo_SelectionChanged"
+                              DisplayMemberPath="Name"
+                              MinWidth="140" VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
             </StackPanel>
 
             <!-- Database -->
             <StackPanel Spacing="10">
 
                 <StackPanel Spacing="2">
-                    <TextBlock Text="Database" FontSize="13" FontWeight="SemiBold" />
-                    <TextBlock Text="Choose which entry lists are loaded for scanning and cleaning."
+                    <TextBlock x:Uid="SectionDatabase" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="LblDatabaseDesc"
                                FontSize="12"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                 </StackPanel>
@@ -128,15 +149,15 @@
 
                             <!-- Name + info -->
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-                                <TextBlock Text="Winapp2" FontWeight="SemiBold" />
+                                <TextBlock x:Uid="LblWinapp2" FontWeight="SemiBold" />
                                 <TextBlock Text="{x:Bind ViewModel.Winapp2Info, Mode=OneWay}"
                                            FontSize="11"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             </StackPanel>
 
                             <!-- Update button -->
-                            <Button Grid.Column="2"
-                                    Content="Update"
+                            <Button x:Uid="BtnUpdateWinapp2"
+                                    Grid.Column="2"
                                     Command="{x:Bind ViewModel.DownloadLatestCommand}"
                                     HorizontalAlignment="Right"
                                     Visibility="{x:Bind ViewModel.EnableWinapp2, Mode=OneWay,
@@ -172,10 +193,10 @@
                             <!-- Name + info -->
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="Winapp3" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="LblWinapp3" FontWeight="SemiBold" />
                                     <Border Background="OrangeRed" CornerRadius="3"
                                             Padding="4,1" VerticalAlignment="Center">
-                                        <TextBlock Text="experimental" FontSize="10"
+                                        <TextBlock x:Uid="LblWinapp3Tag" FontSize="10"
                                                    Foreground="White" />
                                     </Border>
                                 </StackPanel>
@@ -190,11 +211,11 @@
                             <!-- Download (not yet on disk) / Update (already downloaded) -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal"
                                         HorizontalAlignment="Right" Spacing="6">
-                                <Button Content="Download"
+                                <Button x:Uid="BtnDownloadWinapp3"
                                         Command="{x:Bind ViewModel.DownloadWinapp3Command}"
                                         Visibility="{x:Bind ViewModel.Winapp3NotAvailable, Mode=OneWay,
                                             Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <Button Content="Update"
+                                <Button x:Uid="BtnUpdateWinapp3"
                                         Command="{x:Bind ViewModel.DownloadWinapp3Command}"
                                         Visibility="{x:Bind ViewModel.Winapp3Available, Mode=OneWay,
                                             Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -231,10 +252,10 @@
                             <!-- Name + info -->
                             <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="Winappx" FontWeight="SemiBold" />
+                                    <TextBlock x:Uid="LblWinappx" FontWeight="SemiBold" />
                                     <Border Background="{ThemeResource SystemFillColorSuccessBrush}"
                                             CornerRadius="3" Padding="4,1" VerticalAlignment="Center">
-                                        <TextBlock Text="bloatware" FontSize="10" Foreground="White" />
+                                        <TextBlock x:Uid="LblWinappxTag" FontSize="10" Foreground="White" />
                                     </Border>
                                 </StackPanel>
                                 <TextBlock FontSize="11"
@@ -248,11 +269,11 @@
                             <!-- Download (not yet on disk) / Update (already downloaded) -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal"
                                         HorizontalAlignment="Right" Spacing="6">
-                                <Button Content="Download"
+                                <Button x:Uid="BtnDownloadWinappx"
                                         Command="{x:Bind ViewModel.DownloadWinappxCommand}"
                                         Visibility="{x:Bind ViewModel.WinappxNotAvailable, Mode=OneWay,
                                             Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <Button Content="Update"
+                                <Button x:Uid="BtnUpdateWinappx"
                                         Command="{x:Bind ViewModel.DownloadWinappxCommand}"
                                         Visibility="{x:Bind ViewModel.WinappxAvailable, Mode=OneWay,
                                             Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -304,38 +325,33 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0"
-                                         PlaceholderText="Custom database path (.ini)"
+                                <TextBox x:Uid="TxtCustomPath"
+                                         Grid.Column="0"
                                          Text="{x:Bind ViewModel.CustomPath, Mode=TwoWay,
                                                 UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="12"
                                          MinWidth="360" />
-                                <Button Grid.Column="1" Content="Browse…"
+                                <Button x:Uid="BtnBrowse"
+                                        Grid.Column="1"
                                         Click="BrowseButton_Click" />
                             </Grid>
 
                             <!-- Apply / Remove -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal"
                                         Spacing="8" VerticalAlignment="Center">
-                                <Button Content="Apply"
+                                <Button x:Uid="BtnApplyPath"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Command="{x:Bind ViewModel.ApplyCustomPathCommand}" />
-                                <Button Command="{x:Bind ViewModel.RemoveCustomPathCommand}"
+                                <Button x:Uid="BtnRemovePath"
+                                        Command="{x:Bind ViewModel.RemoveCustomPathCommand}"
                                         Visibility="{x:Bind ViewModel.IsCustomSource, Mode=OneWay,
-                                            Converter={StaticResource BoolToVisibilityConverter}}"
-                                        ToolTipService.ToolTip="Remove custom database">
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
                                     <FontIcon Glyph="&#xE711;" FontSize="12" />
                                 </Button>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
-
-                <!-- Restart notice -->
-                <InfoBar IsOpen="{x:Bind ViewModel.RestartRequired, Mode=OneWay}"
-                         IsClosable="True" Severity="Warning"
-                         Title="Restart required"
-                         Message="Please restart FluentCleaner to load the updated database." />
 
             </StackPanel>
 
@@ -349,8 +365,8 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" Spacing="2">
-                        <TextBlock Text="Post-clean tasks" FontSize="13" FontWeight="SemiBold" />
-                        <TextBlock Text="One command per line — runs sequentially after every clean pass."
+                        <TextBlock x:Uid="SectionPostClean" FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock x:Uid="LblPostCleanDesc"
                                    FontSize="12"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
@@ -384,11 +400,54 @@
             </StackPanel>
             <!-- End post-clean tasks -->
 
+            <!-- Global exclusions — paths that are never cleaned, no matter what the database says -->
+            <StackPanel Spacing="10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Spacing="2">
+                        <TextBlock x:Uid="SectionExclusions" FontSize="13" FontWeight="SemiBold" />
+                        <TextBlock x:Uid="LblExclusionsDesc"
+                                   FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+
+                    <ToggleSwitch Grid.Column="1"
+                                  IsOn="{x:Bind ViewModel.GlobalExclusionsEnabled, Mode=TwoWay}"
+                                  OnContent=""
+                                  OffContent=""
+                                  MinWidth="0"
+                                  Margin="12,0,-8,0"
+                                  VerticalAlignment="Center" />
+                </Grid>
+
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <TextBox Text="{x:Bind ViewModel.GlobalExclusionsText, Mode=TwoWay,
+                                        UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             FontFamily="Consolas"
+                             FontSize="12"
+                             MinHeight="116"
+                             IsEnabled="{x:Bind ViewModel.GlobalExclusionsEnabled, Mode=OneWay}"
+                             TextWrapping="NoWrap"
+                             BorderThickness="0"
+                             Padding="12"
+                             PlaceholderText="PATH|%LocalAppData%\Microsoft\Edge*\User Data\*\Service Worker&#x0a;PATH|%LocalAppData%\Microsoft\Edge*\User Data\*\IndexedDB&#x0a;FILE|%AppData%\Mozilla\Firefox\Profiles\|places.sqlite" />
+                </Border>
+            </StackPanel>
+            <!-- End global exclusions -->
+
             <!-- History -->
             <StackPanel Spacing="10">
                 <StackPanel Spacing="2">
-                    <TextBlock Text="History" FontSize="13" FontWeight="SemiBold" />
-                    <TextBlock Text="Track how much junk accumulates over time."
+                    <TextBlock x:Uid="SectionHistory" FontSize="13" FontWeight="SemiBold" />
+                    <TextBlock x:Uid="LblHistoryDesc"
                                FontSize="12"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                 </StackPanel>
@@ -402,7 +461,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                                <TextBlock Text="Clean history" FontSize="13" />
+                                <TextBlock x:Uid="LblCleanHistory" FontSize="13" />
                                 <TextBlock Text="{x:Bind ViewModel.HistorySummary, Mode=OneWay}"
                                            FontSize="12"
                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
@@ -449,7 +508,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="Clear history"
+                        <Button x:Uid="BtnClearHistory"
                                 Command="{x:Bind ViewModel.ClearHistoryCommand}"
                                 Margin="0,12,0,4" />
                     </StackPanel>
@@ -462,27 +521,23 @@
 
                         <!-- title + AI badge -->
                         <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <TextBlock Text="AI explanations" FontSize="13" FontWeight="SemiBold"
+                            <TextBlock x:Uid="SectionAI" FontSize="13" FontWeight="SemiBold"
                                        VerticalAlignment="Center" />
                             <Border Background="{ThemeResource SystemFillColorSuccessBrush}"
                                     CornerRadius="3" Padding="4,1" VerticalAlignment="Center">
-                                <TextBlock Text="opt-in" FontSize="10" Foreground="White" />
+                                <TextBlock x:Uid="LblAIOptIn" FontSize="10" Foreground="White" />
                             </Border>
                             <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
                                     CornerRadius="3" Padding="4,1" VerticalAlignment="Center">
-                                <TextBlock Text="preview" FontSize="10" Foreground="White" />
+                                <TextBlock x:Uid="LblAIPreview" FontSize="10" Foreground="White" />
                             </Border>
                         </StackPanel>
 
-                        <TextBlock TextWrapping="Wrap"
+                        <TextBlock x:Uid="LblAIDesc" TextWrapping="Wrap"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                   FontSize="12">
-                            <Run>Right-click any entry on the Cleaner page → </Run>
-                            <Run FontWeight="SemiBold">Explain with AI.</Run>
-                            <Run> Powered by Groq (llama-3.3-70b) — free, no billing. Nothing is sent without your explicit action. Requires your own API key.</Run>
-                        </TextBlock>
+                                   FontSize="12" />
 
-                        <HyperlinkButton Content="Thoughts? Join the discussion →"
+                        <HyperlinkButton x:Uid="BtnAIDiscussion"
                                          NavigateUri="https://github.com/builtbybel/FluentCleaner/discussions/31"
                                          Padding="0" FontSize="12" />
                     </StackPanel>
@@ -514,15 +569,15 @@
 
                             <StackPanel Grid.Column="2" Orientation="Horizontal"
                                         Spacing="6" VerticalAlignment="Center">
-                                <Button Content="Save"
+                                <Button x:Uid="BtnSaveApiKey"
                                         Style="{StaticResource AccentButtonStyle}"
                                         Click="ApiKeySave_Click" />
-                                <Button x:Name="btnTestKey" Content="Test"
+                                <Button x:Name="btnTestKey" x:Uid="BtnTestApiKey"
                                         Click="ApiKeyTest_Click" />
                             </StackPanel>
 
-                            <HyperlinkButton Grid.Column="3"
-                                         Content="Get key"
+                            <HyperlinkButton x:Uid="BtnGetApiKey"
+                                         Grid.Column="3"
                                          NavigateUri="https://console.groq.com/keys"
                                          VerticalAlignment="Center" />
                         </Grid>
@@ -534,11 +589,44 @@
                                Margin="0,6,0,0"
                                Visibility="Collapsed"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+
+                    <!-- Custom Cleaner AI hint -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="12,8" Margin="0,8,0,0">
+                        <TextBlock x:Uid="LblAICustomHint"
+                                   TextWrapping="Wrap" FontSize="12"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </Border>
+                </StackPanel>
+
+                <!-- Backup / Portable -->
+                <StackPanel Spacing="10">
+                    <TextBlock x:Uid="SectionBackup" FontSize="13" FontWeight="SemiBold" />
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="8" Padding="16,12">
+                        <StackPanel Spacing="8">
+                            <TextBlock x:Uid="LblBackupDesc"
+                                       FontSize="12"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button x:Uid="BtnExport" Click="ExportSettings_Click" MinWidth="90" />
+                                <Button x:Uid="BtnImport" Click="ImportSettings_Click" MinWidth="90" />
+                            </StackPanel>
+                            <TextBlock x:Uid="LblPortableActive"
+                                       FontSize="11"
+                                       Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                       Visibility="{x:Bind ViewModel.IsPortable, Mode=OneWay,
+                                           Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <!-- About -->
             <StackPanel Spacing="10">
-                <TextBlock Text="About" FontSize="13" FontWeight="SemiBold" />
+                <TextBlock x:Uid="SectionAbout" FontSize="13" FontWeight="SemiBold" />
 
             <Expander x:Name="AboutExpander"
                       HorizontalAlignment="Stretch"
@@ -569,12 +657,17 @@
                                         BorderThickness="1"
                                         CornerRadius="3" Padding="5,1"
                                         VerticalAlignment="Center">
-                                    <TextBlock Text="INSIDER" FontSize="9" FontWeight="SemiBold"
+                                    <TextBlock x:Uid="LblInsiderBadge" FontSize="9" FontWeight="SemiBold"
                                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
                                 </Border>
                             </StackPanel>
-                            <TextBlock Text="© 2026 A Belim app creation"
+                            <TextBlock x:Uid="LblCopyright"
                                        FontSize="11"
+                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <!-- Translator credit: filled per language in Resources.resw, hidden when empty -->
+                            <TextBlock x:Name="lblTranslatorCredit"
+                                       FontSize="11"
+                                       Visibility="Collapsed"
                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         </StackPanel>
 
@@ -589,13 +682,13 @@
                 </Expander.Header>
 
                 <StackPanel Spacing="2" Margin="0,4,0,8">
-                    <HyperlinkButton Content="GitHub"
+                    <HyperlinkButton x:Uid="BtnGitHub"
                                      Click="Link_GitHub"
                                      FontSize="13" />
-                    <HyperlinkButton Content="Report an issue"
+                    <HyperlinkButton x:Uid="BtnReportIssue"
                                      Click="Link_Issues"
                                      FontSize="13" />
-                    <HyperlinkButton Content="App icon by naderi"
+                    <HyperlinkButton x:Uid="BtnIconCredit"
                                      Click="Link_IconCredit"
                                      FontSize="13" />
                 </StackPanel>
@@ -603,7 +696,7 @@
 
             <!-- faq below About-->
             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                <HyperlinkButton Content="FAQ"
+                <HyperlinkButton x:Uid="BtnFAQ"
                                  Click="Link_Faq"
                                  FontSize="13" />
             </StackPanel>
