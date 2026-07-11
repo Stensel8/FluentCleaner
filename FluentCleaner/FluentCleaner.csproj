@@ -15,8 +15,8 @@
     <WindowsPackageType>None</WindowsPackageType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyVersion>26.05.27</AssemblyVersion>
-    <FileVersion>26.05.27</FileVersion>
+    <AssemblyVersion>26.07.01</AssemblyVersion>
+    <FileVersion>26.07.01</FileVersion>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -28,6 +28,21 @@
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
+  </ItemGroup>
+
+  <!-- Localization: every Strings/{lang}/Resources.resw is compiled into the .pri for       -->
+  <!-- XAML x:Uid resolution. The glob auto-includes any new language folder on the next      -->
+  <!-- build — just drop a Strings/{lang}/Resources.resw and rebuild; no edits needed here.   -->
+  <ItemGroup>
+    <PRIResource Include="Strings\**\*.resw" />
+  </ItemGroup>
+  <!-- Also deploy the raw resw folders next to the exe. The strings still come from the .pri; -->
+  <!-- these copies exist only so the language dropdown can discover available languages at    -->
+  <!-- runtime by scanning Strings\{lang}\ (ResourceService.GetAvailableLanguages).            -->
+  <ItemGroup>
+    <Content Include="Strings\**\*.resw">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

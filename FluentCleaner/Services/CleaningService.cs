@@ -166,7 +166,7 @@ public class CleaningService
                 File.Delete(file);
                 count++;
                 bytes += size;
-                progress?.Report($"Deleted: {file}");
+                progress?.Report(ResourceService.Fmt("Prog_Deleted", file));
             }
             catch { } //in use or already gone; skip silently
         }
@@ -177,7 +177,7 @@ public class CleaningService
             {
                 DeleteRegistryItem(regItem);
                 count++;
-                progress?.Report($"Registry: {regItem}");
+                progress?.Report(ResourceService.Fmt("Prog_Registry", regItem));
             }
             catch { }
         }
@@ -237,21 +237,30 @@ public class CleaningService
     // --- Helpers --------------------------------------------------
 
     /* Turns the entry's ExcludeKey lines into rules we can actually match against during the scan.
-       REG exclusions are skipped here;they don't apply to file paths anyway. */
+       REG exclusions are skipped here;they don't apply to file paths anyway.
+       Global exclusions from Settings are layered on top — they override everything. */
     private List<ExclusionRule> BuildExclusions(CleanerEntry entry)
     {
         var rules = new List<ExclusionRule>();
+
+        // per-entry ExcludeKeys from the INI
         foreach (var ex in entry.ExcludeKeys)
-        {
-            if (ex.Type is ExcludeType.Reg) continue;
-            foreach (var p in _expander.ResolvePaths(ex.Path))
-            {
-                // Always ensure the prefix ends with '\' so "Cache\" never
-                // accidentally matches a sibling folder like "CacheExtra\".
-                rules.Add(new ExclusionRule(p.TrimEnd('\\') + "\\", ex.Pattern));
-            }
-        }
+            AddRule(ex, rules);
+
+        // app-level exclusions;so this are the paths the user never wants touched, regardless of INI
+        var settings = AppSettings.Instance;
+        if (settings.GlobalExclusionsEnabled)
+            foreach (var line in settings.GlobalExclusions)
+                AddRule(ExcludeKeyEntry.Parse(line), rules);
+
         return rules;
+    }
+
+    private void AddRule(ExcludeKeyEntry ex, List<ExclusionRule> rules)
+    {
+        if (ex.Type is ExcludeType.Reg) return;
+        foreach (var p in _expander.ResolvePaths(ex.Path))
+            rules.Add(new ExclusionRule(p.TrimEnd('\\') + "\\", ex.Pattern));
     }
 
     // Probe whether a file is deletable right now by requesting DELETE access via CreateFileW.

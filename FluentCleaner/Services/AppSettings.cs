@@ -7,19 +7,34 @@ public record CleanHistoryEntry(DateTime Date, long BytesFreed, int ItemsRemoved
 
 public class AppSettings
 {
-    // single shared instance, loaded from disk at startup
-    public static AppSettings Instance { get; private set; } = Load();
+    // single shared instance, loaded from disk at startup.
+    // NOTE: initialized in the static constructor (below), NOT with an inline "= Load()".
+    // Static field initializers run in textual order, and Load() depends on the path fields
+    // (PortablePath/SettingsFile/JsonOptions) declared further down. An inline initializer here
+    // would run BEFORE those fields are set, making SettingsFile null and Load() silently return
+    // empty defaults — which is exactly the bug that made saved settings (language!) never load.
+    public static AppSettings Instance { get; private set; } = null!;
 
-    // %AppData%\FluentCleaner\settings.json
-    private static readonly string SettingsFile = Path.Combine(
+    // Portable mode: if settings.json sits next to the exe, use it instead of %AppData%.
+    // Drop a settings.json next to FluentCleaner.exe and the app becomes fully portable.
+    private static readonly string PortablePath = Path.Combine(AppContext.BaseDirectory, "settings.json");
+    private static readonly string RoamingPath  = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         "FluentCleaner", "settings.json");
+
+    private static readonly string SettingsFile = File.Exists(PortablePath) ? PortablePath : RoamingPath;
+
+    [JsonIgnore]
+    public static bool IsPortable => SettingsFile == PortablePath;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true,
         WriteIndented = true
     };
+
+    // Runs after ALL static field initializers above are set, so Load() sees valid paths.
+    static AppSettings() => Instance = Load();
 
     // --- persisted settings -----------------------------------------------
 
@@ -35,6 +50,11 @@ public class AppSettings
     // post-clean commands;one per line; global on/off switch
     public bool   PostCleanEnabled  { get; set; } = false;
     public string PostCleanCommands { get; set; } = "";
+
+    // global exclusions — paths that are NEVER cleaned regardless of what Winapp2.ini says
+    // uses the same ExcludeKey syntax: PATH|%LocalAppData%\...\Service Worker
+    public bool         GlobalExclusionsEnabled { get; set; } = false;
+    public List<string> GlobalExclusions        { get; set; } = [];
 
     // backdrop style;terminal-only tweak, no Settings UI on purpose
     public string Backdrop { get; set; } = "mica";
@@ -52,6 +72,9 @@ public class AppSettings
 
     // true once the user dismisses the startup donation tip
     public bool DonationDismissed { get; set; } = false;
+
+    // UI language override; "" = follow Windows, "en-US" / "de-DE" = forced
+    public string Language { get; set; } = "";
 
 
     // -----------------------------------------------------------------------
@@ -109,6 +132,20 @@ public class AppSettings
             return s;
         }
         catch { return new(); }  // corrupted file;just start fresh
+    }
+
+    // Export current settings to a file (for backup or sharing)
+    public static void ExportTo(string path)
+        => File.WriteAllText(path, JsonSerializer.Serialize(Instance, JsonOptions));
+
+    // Import settings from a file and replace the current instance
+    public static void ImportFrom(string path)
+    {
+        var json = File.ReadAllText(path);
+        var s = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new();
+        s.CustomWinapp2Path = NormalizePath(s.CustomWinapp2Path);
+        Instance = s;
+        Instance.Save();
     }
 
     // strips quotes and expands %env% variables so paths from the JSON always work

@@ -44,6 +44,7 @@
   <data name="MenuCleanEntry.Text"><value>Bereinigen</value></data>
   <data name="MenuExplainEntry.Text"><value>Mit KI erklären</value></data>
   <data name="LblAIDesc.Text"><value>Rechtsklick auf einen Eintrag auf der Cleaner-Seite → Mit KI erklären. Powered by Groq (llama-3.3-70b) — kostenlos, keine Abrechnung. Es wird nichts ohne deine ausdrückliche Aktion gesendet. Erfordert einen eigenen API-Schlüssel.</value></data>
+  <data name="LblAICustomHint.Text"><value>💡 Sobald dein Schlüssel gespeichert ist, schaltet die Seite „Eigene Reiniger" ebenfalls KI frei — beschreibe was bereinigt werden soll und sie generiert direkt einen fertigen Winapp2-Eintrag oder ein PowerShell-Skript.</value></data>
   <data name="ResultsHeader.Text"><value>Ergebnisse</value></data>
   <data name="BtnBackToResults.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip"><value>Zurück zu den Ergebnissen</value></data>
   <data name="BtnCleanDetail.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip"><value>Diese Dateien jetzt löschen</value></data>
@@ -81,6 +82,10 @@
   <data name="DlgWarningMessage"><value>Die ausgewählten Winapp2-Einträge enthalten folgende Warnungen:</value></data>
   <data name="DlgExplainThinking"><value>Analysiere…</value></data>
   <data name="DlgExplainClose"><value>Schließen</value></data>
+  <data name="DlgRestartTitle"><value>Neustart erforderlich</value></data>
+  <data name="DlgRestartMessage"><value>FluentCleaner muss neu gestartet werden, um die neue Sprache zu laden.</value></data>
+  <data name="DlgRestartNow"><value>Jetzt neu starten</value></data>
+  <data name="DlgRestartLater"><value>Später</value></data>
 
   <!-- Status Messages -->
   <data name="St_Loading"><value>Lade Winapp2.ini...</value></data>

@@ -2,6 +2,7 @@ using FluentCleaner.Services;
 using FluentCleaner.ViewModels;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
+using System.IO;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -51,17 +52,17 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
             flyout.Items.Add(item);
         }
 
-        Add("Select all",      () => ViewModel.SelectAllCommand.Execute(null));
-        Add("Select none",     () => ViewModel.SelectNoneCommand.Execute(null));
-        Add("Select defaults", () => ViewModel.SelectDefaultsCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuSelectAll"),      () => ViewModel.SelectAllCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuSelectNone"),     () => ViewModel.SelectNoneCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuSelectDefaults"), () => ViewModel.SelectDefaultsCommand.Execute(null));
         flyout.Items.Add(new MenuFlyoutSeparator());
-        Add("Expand all",      () => ViewModel.ExpandAllCommand.Execute(null));
-        Add("Collapse all",    () => ViewModel.CollapseAllCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuExpandAll"),      () => ViewModel.ExpandAllCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuCollapseAll"),    () => ViewModel.CollapseAllCommand.Execute(null));
         flyout.Items.Add(new MenuFlyoutSeparator());
-        Add("Sort by size ↓",  () => ViewModel.SortResultsDescCommand.Execute(null));
-        Add("Sort by size ↑",  () => ViewModel.SortResultsAscCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuSortDesc"),       () => ViewModel.SortResultsDescCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuSortAsc"),        () => ViewModel.SortResultsAscCommand.Execute(null));
         flyout.Items.Add(new MenuFlyoutSeparator());
-        Add("Refresh",         () => ViewModel.RefreshCommand.Execute(null));
+        Add(ResourceService.Get("St_MenuRefresh"),        () => ViewModel.RefreshCommand.Execute(null));
     }
 
     // Open the detail view for the clicked result row
@@ -80,6 +81,42 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
         if (string.IsNullOrWhiteSpace(path) || path.StartsWith("HK", StringComparison.OrdinalIgnoreCase)) return;
 
         System.Diagnostics.Process.Start("explorer.exe", $"/select,\"{path}\"");
+    }
+
+    // Right-click "Exclude file";protects just this one file (FILE|dir|name)
+    private void ExcludeFile_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem { Tag: string path } || string.IsNullOrWhiteSpace(path)) return;
+        if (path.StartsWith("HK", StringComparison.OrdinalIgnoreCase)) return;
+
+        var dir  = Path.GetDirectoryName(path);
+        var file = Path.GetFileName(path);
+        if (string.IsNullOrEmpty(dir) || string.IsNullOrEmpty(file)) return;
+
+        AddGlobalExclusion($"FILE|{dir}|{file}", ResourceService.Fmt("St_ExcludedFile", file));
+    }
+
+    // Right-click "Exclude folder";protects the entire parent folder tree (PATH|dir)
+    private void ExcludeFolder_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem { Tag: string path } || string.IsNullOrWhiteSpace(path)) return;
+        if (path.StartsWith("HK", StringComparison.OrdinalIgnoreCase)) return;
+
+        var dir = Path.GetDirectoryName(path);
+        if (string.IsNullOrEmpty(dir)) return;
+
+        AddGlobalExclusion($"PATH|{dir}", ResourceService.Fmt("St_ExcludedFolder", dir));
+    }
+
+    private void AddGlobalExclusion(string rule, string status)
+    {
+        var settings = Services.AppSettings.Instance;
+        if (settings.GlobalExclusions.Contains(rule, StringComparer.OrdinalIgnoreCase)) return;
+
+        settings.GlobalExclusions.Add(rule);
+        settings.GlobalExclusionsEnabled = true;
+        settings.Save();
+        ViewModel.StatusText = status;
     }
 
     // Entry flyout; Tag="{x:Bind}" gives us the CleanerEntryViewModel directly
@@ -108,18 +145,19 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
 
         var textBlock = new TextBlock
         {
-            Text = "Thinking…",
+            Text = ResourceService.Get("DlgExplainThinking"),
             TextWrapping = TextWrapping.Wrap,
             MaxWidth = 400
         };
 
         var dialog = new ContentDialog
         {
-            XamlRoot       = XamlRoot,
-            CornerRadius   = new CornerRadius(8),
-            Title          = vm.Name,
-            CloseButtonText = "Close",
-            Content        = textBlock
+            XamlRoot        = XamlRoot,
+            RequestedTheme  = ActualTheme,
+            CornerRadius    = new CornerRadius(8),
+            Title           = vm.Name,
+            CloseButtonText = ResourceService.Get("DlgExplainClose"),
+            Content         = textBlock
         };
 
         // Show the dialog immediately (don't await), then fill in the answer
@@ -161,7 +199,7 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
         await ((IAsyncRelayCommand)ViewModel.RunCleanerCommand).ExecuteAsync(null);
     }
 
-    // Check for running browsers — only warns when browser entries are actually selected
+    // Check for running browsers;only warns when browser entries are actually selected
     private static readonly (string Process, string DisplayName, int[] LangSecRefs)[] KnownBrowsers =
     [
         ("chrome",  "Google Chrome",    [3029]),
@@ -190,12 +228,13 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
         var dialog = new ContentDialog
         {
             XamlRoot          = XamlRoot,
+            RequestedTheme    = ActualTheme,
             CornerRadius      = new CornerRadius(8),
-            Title             = "Browsers running",
-            PrimaryButtonText = "Continue anyway",
-            CloseButtonText   = "Cancel",
+            Title             = ResourceService.Get("DlgBrowsersTitle"),
+            PrimaryButtonText = ResourceService.Get("DlgBrowsersContinue"),
+            CloseButtonText   = ResourceService.Get("DlgBrowsersCancel"),
             DefaultButton     = ContentDialogButton.Close,
-            Content           = $"Close these apps for best results:\n{string.Join(", ", running)}\n\nOpen browsers lock cache and history files — they will be skipped during cleaning."
+            Content           = ResourceService.Fmt("DlgBrowsersMessage", string.Join(", ", running))
         };
 
         return await dialog.ShowAsync() == ContentDialogResult.Primary;
@@ -210,10 +249,11 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
         var dialog = new ContentDialog
         {
             XamlRoot          = XamlRoot,
+            RequestedTheme    = ActualTheme,
             CornerRadius      = new CornerRadius(8),
-            Title             = "Cleaning warning",
-            PrimaryButtonText = "Continue",
-            CloseButtonText   = "Cancel",
+            Title             = ResourceService.Get("DlgWarningTitle"),
+            PrimaryButtonText = ResourceService.Get("DlgWarningContinue"),
+            CloseButtonText   = ResourceService.Get("DlgWarningCancel"),
             DefaultButton     = ContentDialogButton.Close,
             Content = new ScrollViewer
             {
@@ -221,7 +261,7 @@ public sealed partial class CleanerPage : Page, ISearchablePage, IPageActions
                 Content = new TextBlock
                 {
                     Text =
-                        "The selected Winapp2 entries include the following warnings:" +
+                        ResourceService.Get("DlgWarningMessage") +
                         $"{Environment.NewLine}{Environment.NewLine}" +
                         string.Join($"{Environment.NewLine}{Environment.NewLine}", warnings),
                     TextWrapping = TextWrapping.Wrap

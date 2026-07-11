@@ -14,7 +14,15 @@ public sealed partial class NewCleanerDialog : ContentDialog
     {
         InitializeComponent();
 
-        Title = existing is null ? "New custom cleaner" : $"Edit — {existing.Name}";
+        // Localized strings that can't use x:Uid (ContentDialog buttons) or share plain code-side keys.
+        PrimaryButtonText       = ResourceService.Get("DlgNewCleanerSave");
+        CloseButtonText         = ResourceService.Get("DlgNewCleanerCancel");
+        nameBox.Header          = ResourceService.Get("DlgNewCleanerNameHeader");
+        nameBox.PlaceholderText = ResourceService.Get("DlgNewCleanerNamePlaceholder");
+        promptBox.PlaceholderText = ResourceService.Get("DlgNewCleanerAiPlaceholder");
+        contentLabel.Text       = ResourceService.Get("DlgNewCleanerContentLabel");
+
+        Title = existing is null ? ResourceService.Get("DlgNewCleanerTitleNew") : ResourceService.Fmt("DlgNewCleanerTitleEdit", existing.Name);
 
         // Hide the AI row when no Groq API key is configured
         var hasKey = !string.IsNullOrWhiteSpace(AppSettings.Instance.GroqApiKey)
@@ -50,12 +58,12 @@ public sealed partial class NewCleanerDialog : ContentDialog
         if (string.IsNullOrEmpty(desc)) return;
 
         generateBtn.IsEnabled = false;
-        generateBtn.Content   = "…";
+        generateBtn.Content   = ResourceService.Get("DlgNewCleanerGenerating");
         contentBox.Text       = IsScript
             ? await AiExplainer.GenerateScriptAsync(desc)
             : await AiExplainer.GenerateEntryAsync(desc);
         generateBtn.IsEnabled = true;
-        generateBtn.Content   = "Generate";
+        generateBtn.Content   = ResourceService.Get("DlgNewCleanerGenerate.Content");
     }
 
     // --- Templates -------------------------------------------------------
