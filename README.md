@@ -38,6 +38,10 @@ if you like it, cool. if not, also fair
 Older versions are available below.
 https://github.com/builtbybel/FluentCleaner/releases
 
+### Requirements
+- Windows 10 2004 (Build 19041) or later
+- [Windows App SDK 2.0.1 ](https://aka.ms/windowsappsdk/2.0/2.0.1/windowsappruntimeinstall-x64.exe) this needs to be installed separately
+
 ## FAQ
 
 <details>
