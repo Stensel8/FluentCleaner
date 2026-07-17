@@ -31,6 +31,19 @@ here's a first preview so you can get a feel for the direction. i might end up f
 
 if you like it, cool. if not, also fair
 
+## 🚀 Download Latest Stable
+
+[⬇ Download Latest FluentCleaner](https://github.com/builtbybel/FluentCleaner/releases/latest/download/FluentCleaner-win-x64.zip)
+
+Older versions are available below.
+https://github.com/builtbybel/FluentCleaner/releases
+
+### Requirements
+The Windows App SDK runtime is the only thing it needs. It's a native WinUI app, so that runtime is the foundation it runs on (like .net framework back in the day). install it once and you're good, the rest ships inside FluentCleaner
+
+- Windows 10 2004 (Build 19041) or later
+- [Windows App SDK 2.0.1 ](https://aka.ms/windowsappsdk/2.0/2.0.1/windowsappruntimeinstall-x64.exe) this needs to be installed separately
+
 ## FAQ
 
 <details>
@@ -152,9 +165,9 @@ issues and feature requests go here on github as usual.
 
 </details>
 
+<a id="task-scheduler"></a>
 <details>
-<summary>can i run FluentCleaner without a UI / from Task Scheduler?</summary>
-
+<summary>Can I run FluentCleaner without a UI / from Task Scheduler?</summary>
 yes.
 
 ```powershell
